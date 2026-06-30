@@ -12,5 +12,5 @@ public class TeamVo {
 	private String teamName;
 	private String teamOwner;
 	private String teamCaptain;
-	private List<Player> players;
+	private List<PlayerVo> players;
 }

@@ -1,7 +1,5 @@
 package com.nt.vo;
 
-import com.nt.entity.Team;
-
 import lombok.Data;
 
 @Data
@@ -11,5 +9,5 @@ private Integer playerId;
 	private String playerRole;
 	private Integer jerseyNo;
 	private Integer age;
-	private Team team;
+	private TeamVo team;
 }

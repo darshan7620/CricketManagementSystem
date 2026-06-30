@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.nt.entity.Team;
 import com.nt.service.ITeamService;
 import com.nt.vo.TeamVo;
 
@@ -29,18 +28,18 @@ public class TeamController {
 	private ITeamService service; // service injected
 	
 	@GetMapping("/find/{id}")
-	public ResponseEntity<Team> fetchTeamById(@PathVariable Integer id){
+	public ResponseEntity<TeamVo> fetchTeamById(@PathVariable Integer id){
 		log.debug("fetchTeamById method execution started");
 		log.info("Fetching the team by received id");
 		
 		// Get the team object
-		Team team = service.findTeamById(id);
+		TeamVo team = service.findTeamById(id);
 		
 		log.info("Fetched team data result is returned");
 		log.debug("fetchTeamById method execution completed");
 		// return response entity
 		return new 
-				ResponseEntity<Team>(team,HttpStatus.OK);
+				ResponseEntity<TeamVo>(team,HttpStatus.OK);
 	}
 	
 	@PostMapping("/register")
@@ -49,7 +48,7 @@ public class TeamController {
 		log.info("Registering the team");
 		
 		// call service method
-		Team result = service.registerTeam(team);
+		TeamVo result = service.registerTeam(team);
 		
 		log.info("After registering the team and return the result");
 		log.debug("insertTeam method execution completed");
@@ -63,10 +62,10 @@ public class TeamController {
 		log.debug("insertAllTeams method execution started");
 		log.info("All teams record inserted");
 		// call service methods
-		List<Team> tms = service.registerTeam(teams);
+		List<TeamVo> tms = service.registerAllTeam(teams);
 		
 		// get ids of team
-		List<Integer> ids = tms.stream().map(Team::getTeamId).toList();
+		List<Integer> ids = tms.stream().map(TeamVo::getTeamId).toList();
 		log.info("All teams id are fetched and returned as result");
 		log.debug("insertAllTeams method execution completed");
 		// return respone entity
@@ -75,14 +74,14 @@ public class TeamController {
 	}
 	
 	@GetMapping("/findAll")
-	public ResponseEntity<List<Team>> fetchAllTeams(){
+	public ResponseEntity<List<TeamVo>> fetchAllTeams(){
 		log.debug("fetchAllTeams method execution started");
 		log.info("Getting All teams");
 		// call service method
-		List<Team> teams = service.getAllTeams();
+		List<TeamVo> teams = service.getAllTeams();
 		log.debug("fetchAllTeams method execution completed");
 		// return response entity
-		return new ResponseEntity<List<Team>>(teams, HttpStatus.OK);
+		return new ResponseEntity<List<TeamVo>>(teams, HttpStatus.OK);
 	}
 	
 	@PutMapping("/updateTeam")
@@ -90,7 +89,7 @@ public class TeamController {
 		log.debug("updateTeamData method execution started");
 		log.info("updating the the team data, calling service method");
 		// call service to update object
-		Team team = service.updateTeamDetails(vo);
+		TeamVo team = service.updateTeamDetails(vo);
 		log.info("updated object service result is returned");
 		log.debug("updateTeamData method execution completed");
 		// return response entity
