@@ -73,7 +73,6 @@ public class ITeamServiceImpl implements ITeamService {
 
 	// Find Team By Id
 	@Override
-	@Cacheable(value = "team", key = "#id")
 	public TeamVo findTeamById(int id) {
 		log.info("Searching for team with ID: {}", id);
 		Team team = repo.findById(id).orElseThrow(() -> {
@@ -88,22 +87,24 @@ public class ITeamServiceImpl implements ITeamService {
 
 	// Update Team
 	@Override
-	@Cacheable(value = "teams")
 	public List<TeamVo> getAllTeams() {
-		log.info("Fetching all teams.");
-		List<Team> teams = repo.findAll();
-		List<TeamVo> teamVos = new ArrayList<>();
-		for (Team team : teams) {
-			TeamVo tm = new TeamVo();
-			BeanUtils.copyProperties(team, tm);
-			log.info("Team '{}' saved with ID: {}", tm.getTeamName(), tm.getTeamId());
-			teamVos.add(tm);
-		}
-		log.info("Retrieved {} teams from database.", teams.size());
 
-		return teamVos;
+	    log.info("Method entered");
+
+	    log.info("Before repo.findAll()");
+	    List<Team> teams = repo.findAll();
+	    log.info("After repo.findAll()");
+
+	    List<TeamVo> teamVos = new ArrayList<>();
+
+	    for (Team team : teams) {
+	        TeamVo tm = new TeamVo();
+	        BeanUtils.copyProperties(team, tm);
+	        teamVos.add(tm);
+	    }
+
+	    return teamVos;
 	}
-
 	// Delete Team By Id
 	@Override
 	@Caching(evict = { @CacheEvict(value = "team", key = "#id"), @CacheEvict(value = "teams", allEntries = true) })

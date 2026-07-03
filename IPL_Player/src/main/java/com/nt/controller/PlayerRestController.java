@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,13 +25,13 @@ public class PlayerRestController {
 	private IPlayerService service;
 
 	@PostMapping("/register")
-	public ResponseEntity<PlayerVo> addPlayer(PlayerVo player) {
+	public ResponseEntity<PlayerVo> addPlayer(@RequestBody PlayerVo player) {
 		return new ResponseEntity<PlayerVo>(service.registerPlayer(player), HttpStatus.CREATED);
 	}
 
 	
 	@PostMapping("/registerAll")
-	public ResponseEntity<List<PlayerVo>> addPlayers(List<PlayerVo> players) {
+	public ResponseEntity<List<PlayerVo>> addPlayers(@RequestBody List<PlayerVo> players) {
 		return new ResponseEntity<List<PlayerVo>>(service.registerPlayers(players), HttpStatus.CREATED);// done
 	}
 
@@ -47,7 +48,7 @@ public class PlayerRestController {
 	}
 
 	@PutMapping("/update")
-	public ResponseEntity<PlayerVo> savePlayerDetails(PlayerVo player) {
+	public ResponseEntity<PlayerVo> savePlayerDetails(@RequestBody PlayerVo player) {
 		return new ResponseEntity<PlayerVo> (service.updatePlayerDetails(player), HttpStatus.OK);
 	}
 

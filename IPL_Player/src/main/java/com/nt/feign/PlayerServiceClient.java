@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import com.nt.entity.Team;
 
-@FeignClient
+@FeignClient(name = "ipl-team")
 public interface PlayerServiceClient {
 	
 	@GetMapping("/find/{id}")

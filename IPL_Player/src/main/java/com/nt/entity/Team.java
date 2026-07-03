@@ -1,4 +1,5 @@
 package com.nt.entity;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,7 +28,7 @@ import lombok.RequiredArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Team {
+public class Team implements Serializable{
 
     @Id
     @SequenceGenerator(

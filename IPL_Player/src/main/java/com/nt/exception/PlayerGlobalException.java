@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class PlayerGlobalException {
 
 	@ExceptionHandler(PlayerNotFoundException.class)
-	public ResponseEntity<String> PNFExceptionHandler() {
-		return new ResponseEntity<String>("Player not found", HttpStatus.INTERNAL_SERVER_ERROR);
+	public ResponseEntity<String> PNFExceptionHandler(PlayerNotFoundException e) {
+		return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 	
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<String> GLBExceptionHandler(){
-		return new ResponseEntity<String>("Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+	public ResponseEntity<String> GLBExceptionHandler(Exception e){
+		return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

@@ -1,5 +1,6 @@
 package com.nt.entity;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,58 +22,52 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+
 @Entity
 @Table(name = "PLAYER")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class Player {
+public class Player implements Serializable{
 
-    @Id
-    @SequenceGenerator(
-        name = "player_gen",
-        sequenceName = "SEQ2",
-        initialValue = 1111,
-        allocationSize = 1)
-    @GeneratedValue(
-        generator = "player_gen",
-        strategy = GenerationType.SEQUENCE)
-    private Integer playerId;
+	@Id
+	@SequenceGenerator(name = "player_gen", sequenceName = "SEQ2", initialValue = 1111, allocationSize = 1)
+	@GeneratedValue(generator = "player_gen", strategy = GenerationType.SEQUENCE)
+	private Integer playerId;
 
-    @NonNull
-    @Column(length = 30)
-    private String playerName;
+	@NonNull
+	@Column(length = 30)
+	private String playerName;
 
-    @NonNull
-    @Column(length = 30)
-    private String playerRole;
+	@NonNull
+	@Column(length = 30)
+	private String playerRole;
 
-    @NonNull
-    private Integer jerseyNo;
+	@NonNull
+	private Integer jerseyNo;
 
-    @NonNull
-    private Integer age;
+	@NonNull
+	private Integer age;
 
-    @ManyToOne(targetEntity = Team.class, 
-    		fetch = FetchType.EAGER)
-    @JoinColumn(referencedColumnName = "teamId",name="teamId")
-    private Team team;
+	@ManyToOne(targetEntity = Team.class, fetch = FetchType.EAGER)
+	@JoinColumn(referencedColumnName = "teamId", name = "teamId")
+	private Team team;
 
-    @Version
-    private Integer modifiedCount;
+	@Version
+	private Integer modifiedCount;
 
-    @CreationTimestamp
-    private LocalDateTime createdOn;
+	@CreationTimestamp
+	private LocalDateTime createdOn;
 
-    @UpdateTimestamp
-    private LocalDateTime updatedOn;
+	@UpdateTimestamp
+	private LocalDateTime updatedOn;
 
-    @NonNull
-    @Column(length = 30)
-    private String createdBy;
+	@NonNull
+	@Column(length = 30)
+	private String createdBy;
 
-    @NonNull
-    @Column(length = 30)
-    private String updatedBy;
+	@NonNull
+	@Column(length = 30)
+	private String updatedBy;
 }

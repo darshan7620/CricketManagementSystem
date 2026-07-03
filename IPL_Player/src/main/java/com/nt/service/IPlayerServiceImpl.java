@@ -67,12 +67,12 @@ public class IPlayerServiceImpl implements IPlayerService {
 	}
 
 	@Override
-	@CacheEvict(value="players", allEntries=true)
+	@CacheEvict(value = "players", allEntries = true)
 	public List<PlayerVo> registerPlayers(List<PlayerVo> players) {
 		log.debug("register players method executed");
 		log.info("call made to service method from register players");
 		// create new list of entity
-		List<PlayerVo> player = new ArrayList<>();
+		ArrayList<PlayerVo> player = new ArrayList<>();
 		// save all the players
 		players.forEach(pl -> {
 			Player p = new Player();
@@ -80,7 +80,7 @@ public class IPlayerServiceImpl implements IPlayerService {
 			BeanUtils.copyProperties(pl, p);
 			TeamVo team = pl.getTeam();
 			Team t = tmRepo.findById(team.getTeamId()).orElseThrow(() -> new TeamNotFoundException("Invalid team id"));
-			p.setTeam(t);
+			p.setTeam(t); // set the team
 			// set created by property
 			p.setCreatedBy(env.getProperty("user.name"));
 			// save the object
@@ -120,13 +120,28 @@ public class IPlayerServiceImpl implements IPlayerService {
 		log.info("call made to service method from getAllPlayers");
 
 		List<PlayerVo> players = new ArrayList<>();
-		repo.findAll().forEach(plyr -> {
+		List<Player> plyrs = repo.findAll();
+		// copy properties to the vo
+		plyrs.forEach(p -> {
 			PlayerVo vo = new PlayerVo();
-			BeanUtils.copyProperties(plyr, vo);
+			
+			// set the properties
+			BeanUtils.copyProperties(p, vo);
+			
+			// set the team
+			Team team = p.getTeam();
+			// copy team to team vo
+			TeamVo tvo = new TeamVo();
+			
+			// copy the team to vo
+			BeanUtils.copyProperties(team, tvo);
+			vo.setTeam(tvo);
+			
 			players.add(vo);
 		});
 		log.info("result is returned from getAllPlayers");
 		log.debug("getAllPlayers method executed sucessfully");
+		System.out.println(players);
 		return players;
 	}
 
