@@ -2,7 +2,6 @@ package com.nt.service;
 
 import java.util.List;
 
-import com.nt.entity.Player;
 import com.nt.vo.PlayerVo;
 
 public interface IPlayerService {
@@ -13,5 +12,7 @@ public interface IPlayerService {
 	public PlayerVo updatePlayerDetails(PlayerVo Player); // done
 	public String deletePlayerById(int id); // done
 	public String deleteAllPlayers(); // done
+	public PlayerVo signup(PlayerVo player);
+	public PlayerVo login(String email, String password);
 
 }

@@ -110,6 +110,9 @@ public class ITeamServiceImpl implements ITeamService {
 	@Caching(evict = { @CacheEvict(value = "team", key = "#id"), @CacheEvict(value = "teams", allEntries = true) })
 	public String deleteTeamById(int id) {
 		log.info("Deleting team with ID: {}", id);
+		if (!repo.existsById(id)) {
+			throw new TeamNotFoundException("Team not found with id : " + id);
+		}
 		repo.deleteById(id);
 		log.info("Team deleted successfully with ID: {}", id);
 		return "Team deleted successfully with id : " + id;

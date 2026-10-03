@@ -1,0 +1,59 @@
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
+import { teamApi } from '../../api.js'
+import Message from '../../components/Message.jsx'
+
+export default function DeleteTeam() {
+  const [params] = useSearchParams()
+  const [id, setId] = useState(params.get('id') || '')
+  const [preview, setPreview] = useState(null)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  async function load(teamId) {
+    setError('')
+    setPreview(null)
+    try {
+      setPreview(await teamApi.find(teamId))
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  useEffect(() => {
+    if (params.get('id')) load(params.get('id'))
+  }, [params])
+
+  async function onSubmit(e) {
+    e.preventDefault()
+    setError('')
+    setSuccess('')
+    const label = preview?.teamName || `team ${id}`
+    if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return
+    try {
+      setSuccess(await teamApi.remove(id))
+      setPreview(null)
+    } catch (err) {
+      setError(err.message)
+    }
+  }
+
+  return (
+    <>
+      <h1 className="page-title">Delete team</h1>
+      <p className="page-sub">Removes one TEAM row. Confirm before you continue.</p>
+      <div className="card">
+        <Message error={error} success={success} />
+        <form onSubmit={onSubmit}>
+          <label>Team id</label>
+          <div className="row">
+            <input type="number" required value={id} onChange={(e) => setId(e.target.value)} />
+            <button className="btn btn-ghost" type="button" onClick={() => load(id)}>Preview</button>
+          </div>
+          {preview && <p className="hint">About to delete {preview.teamName} (captain {preview.teamCaptain}).</p>}
+          <button className="btn btn-danger" type="submit">Delete</button>
+        </form>
+      </div>
+    </>
+  )
+}

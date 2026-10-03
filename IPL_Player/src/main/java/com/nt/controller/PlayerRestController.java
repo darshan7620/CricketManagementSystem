@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.nt.service.IPlayerService;
+import com.nt.vo.LoginRequest;
 import com.nt.vo.PlayerVo;
 
 @RestController
@@ -24,41 +25,48 @@ public class PlayerRestController {
 	@Autowired
 	private IPlayerService service;
 
+	@PostMapping("/auth/register")
+	public ResponseEntity<PlayerVo> signup(@RequestBody PlayerVo player) {
+		return new ResponseEntity<PlayerVo>(service.signup(player), HttpStatus.CREATED);
+	}
+
+	@PostMapping("/auth/login")
+	public ResponseEntity<PlayerVo> login(@RequestBody LoginRequest request) {
+		return new ResponseEntity<PlayerVo>(service.login(request.getEmail(), request.getPassword()), HttpStatus.OK);
+	}
+
 	@PostMapping("/register")
 	public ResponseEntity<PlayerVo> addPlayer(@RequestBody PlayerVo player) {
 		return new ResponseEntity<PlayerVo>(service.registerPlayer(player), HttpStatus.CREATED);
 	}
 
-	
 	@PostMapping("/registerAll")
 	public ResponseEntity<List<PlayerVo>> addPlayers(@RequestBody List<PlayerVo> players) {
-		return new ResponseEntity<List<PlayerVo>>(service.registerPlayers(players), HttpStatus.CREATED);// done
+		return new ResponseEntity<List<PlayerVo>>(service.registerPlayers(players), HttpStatus.CREATED);
 	}
 
-	
 	@GetMapping("/find/{id}")
 	public ResponseEntity<PlayerVo> getPlayerById(@PathVariable Integer id) {
-		return new ResponseEntity<PlayerVo>(service.findPlayerById(id), HttpStatus.OK);// done
+		return new ResponseEntity<PlayerVo>(service.findPlayerById(id), HttpStatus.OK);
 	}
 
-	
 	@GetMapping("/findAll")
 	public ResponseEntity<List<PlayerVo>> findAllPlayers() {
-		return new ResponseEntity<List<PlayerVo>>(service.getAllPlayers(), HttpStatus.OK);// done
+		return new ResponseEntity<List<PlayerVo>>(service.getAllPlayers(), HttpStatus.OK);
 	}
 
 	@PutMapping("/update")
 	public ResponseEntity<PlayerVo> savePlayerDetails(@RequestBody PlayerVo player) {
-		return new ResponseEntity<PlayerVo> (service.updatePlayerDetails(player), HttpStatus.OK);
+		return new ResponseEntity<PlayerVo>(service.updatePlayerDetails(player), HttpStatus.OK);
 	}
 
-	@DeleteMapping("/delete")
-	public ResponseEntity<String> removePlayerById(int id) {
-		return new ResponseEntity<String>(service.deletePlayerById(id), HttpStatus.OK);// done
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<String> removePlayerById(@PathVariable int id) {
+		return new ResponseEntity<String>(service.deletePlayerById(id), HttpStatus.OK);
 	}
 
 	@DeleteMapping("/deleteAll")
 	public ResponseEntity<String> removeAllPlayers() {
-		return new ResponseEntity<String>(service.deleteAllPlayers(),HttpStatus.OK);
+		return new ResponseEntity<String>(service.deleteAllPlayers(), HttpStatus.OK);
 	}
 }

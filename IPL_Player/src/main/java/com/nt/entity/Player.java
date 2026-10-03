@@ -50,6 +50,12 @@ public class Player implements Serializable{
 	@NonNull
 	private Integer age;
 
+	@Column(length = 80, unique = true)
+	private String email;
+
+	@Column(length = 120)
+	private String passwordHash;
+
 	@ManyToOne(targetEntity = Team.class, fetch = FetchType.EAGER)
 	@JoinColumn(referencedColumnName = "teamId", name = "teamId")
 	private Team team;

@@ -43,34 +43,23 @@ public class TeamController {
 	}
 	
 	@PostMapping("/register")
-	public ResponseEntity<String> insertTeam(@RequestBody TeamVo team){
+	public ResponseEntity<TeamVo> insertTeam(@RequestBody TeamVo team){
 		log.debug("insertTeam method execution started");
 		log.info("Registering the team");
-		
-		// call service method
 		TeamVo result = service.registerTeam(team);
-		
 		log.info("After registering the team and return the result");
 		log.debug("insertTeam method execution completed");
-		// return the response entity
-		return new 
-				ResponseEntity<String>("Team is registered with id: "+result.getTeamId(),HttpStatus.CREATED);
+		return new ResponseEntity<TeamVo>(result, HttpStatus.CREATED);
 	}
 	
 	@PostMapping("/registerAll")
-	public ResponseEntity<String> insertAllTeams(@RequestBody List<TeamVo> teams){
+	public ResponseEntity<List<TeamVo>> insertAllTeams(@RequestBody List<TeamVo> teams){
 		log.debug("insertAllTeams method execution started");
 		log.info("All teams record inserted");
-		// call service methods
 		List<TeamVo> tms = service.registerAllTeam(teams);
-		
-		// get ids of team
-		List<Integer> ids = tms.stream().map(TeamVo::getTeamId).toList();
 		log.info("All teams id are fetched and returned as result");
 		log.debug("insertAllTeams method execution completed");
-		// return respone entity
-		return new 
-				ResponseEntity<String>("Teams are registered with ids: "+ids,HttpStatus.CREATED);
+		return new ResponseEntity<List<TeamVo>>(tms, HttpStatus.CREATED);
 	}
 	
 	@GetMapping("/findAll")
@@ -85,16 +74,13 @@ public class TeamController {
 	}
 	
 	@PutMapping("/updateTeam")
-	public ResponseEntity<String> updateTeamData(@RequestBody TeamVo vo){
+	public ResponseEntity<TeamVo> updateTeamData(@RequestBody TeamVo vo){
 		log.debug("updateTeamData method execution started");
 		log.info("updating the the team data, calling service method");
-		// call service to update object
 		TeamVo team = service.updateTeamDetails(vo);
 		log.info("updated object service result is returned");
 		log.debug("updateTeamData method execution completed");
-		// return response entity
-		return new 
-				ResponseEntity<String>("Team data has been updated having id: "+team.getTeamId(),HttpStatus.OK);
+		return new ResponseEntity<TeamVo>(team, HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/delete/{id}")

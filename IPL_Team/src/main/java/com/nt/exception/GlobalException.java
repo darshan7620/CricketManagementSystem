@@ -5,16 +5,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import com.nt.vo.ApiError;
+
 @RestControllerAdvice
 public class GlobalException {
-	
+
 	@ExceptionHandler(TeamNotFoundException.class)
-	public ResponseEntity<String> teamAvailability(TeamNotFoundException ex) {
-	    return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+	public ResponseEntity<ApiError> teamAvailability(TeamNotFoundException ex) {
+		return new ResponseEntity<>(new ApiError(ex.getMessage()), HttpStatus.NOT_FOUND);
 	}
-	
+
 	@ExceptionHandler(Exception.class)
-	public ResponseEntity<String> globalExceptionHandler(Exception e){
-		return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+	public ResponseEntity<ApiError> globalExceptionHandler(Exception e) {
+		return new ResponseEntity<>(new ApiError(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
 	}
 }

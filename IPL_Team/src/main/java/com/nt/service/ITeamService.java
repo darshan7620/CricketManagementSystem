@@ -2,7 +2,6 @@ package com.nt.service;
 
 import java.util.List;
 
-import com.nt.entity.Team;
 import com.nt.vo.TeamVo;
 
 public interface ITeamService {
