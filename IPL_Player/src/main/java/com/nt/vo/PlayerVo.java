@@ -17,4 +17,8 @@ public class PlayerVo implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	private String password;
 	private TeamVo team;
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	private String role;
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	private String token;
 }

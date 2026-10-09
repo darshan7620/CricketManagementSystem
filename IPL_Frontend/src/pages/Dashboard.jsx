@@ -38,11 +38,16 @@ export default function Dashboard() {
 
   return (
     <>
-      <h1 className="page-title">Welcome, {player?.playerName}</h1>
-      <p className="page-sub">
-        Player id {player?.playerId} · {player?.email} · {player?.playerRole}
-        {player?.team?.teamName ? ` · ${player.team.teamName}` : ''}
-      </p>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">Welcome, {player?.playerName}</h1>
+          <p className="page-sub">
+            Player id {player?.playerId} · {player?.email} · {player?.playerRole}
+            {player?.team?.teamName ? ` · ${player.team.teamName}` : ''}
+          </p>
+        </div>
+        <span className="badge">PLAYER</span>
+      </div>
       <Message error={error} />
 
       <div className="stat-row">
@@ -62,11 +67,10 @@ export default function Dashboard() {
 
       <div className="ops">
         <Link to="/profile"><strong>My profile</strong><span>Update your PLAYER record</span></Link>
-        <Link to="/players/register"><strong>Register player</strong><span>Add a squad member</span></Link>
         <Link to="/players"><strong>Squad list</strong><span>Everyone in the database</span></Link>
-        <Link to="/teams/register"><strong>Register team</strong><span>Add a franchise</span></Link>
-        <Link to="/teams"><strong>Team list</strong><span>All franchises</span></Link>
         <Link to="/players/find"><strong>Find player</strong><span>Lookup by id</span></Link>
+        <Link to="/teams"><strong>Team list</strong><span>All franchises</span></Link>
+        <Link to="/teams/find"><strong>Find team</strong><span>Lookup by id</span></Link>
       </div>
 
       <h2 className="section-title">Franchises</h2>

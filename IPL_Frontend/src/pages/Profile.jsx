@@ -3,9 +3,10 @@ import { playerApi } from '../api.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import Message from '../components/Message.jsx'
 import TeamSelect from '../components/TeamSelect.jsx'
+import { validatePassword } from '../utils/passwordPolicy.js'
 
 export default function Profile() {
-  const { player, login } = useAuth()
+  const { player, updateUser } = useAuth()
   const [form, setForm] = useState({
     playerId: player?.playerId || '',
     playerName: player?.playerName || '',
@@ -18,6 +19,7 @@ export default function Profile() {
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
   function set(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -27,6 +29,14 @@ export default function Profile() {
     e.preventDefault()
     setError('')
     setSuccess('')
+    if (form.password) {
+      const issue = validatePassword(form.password)
+      if (issue) {
+        setError(issue)
+        return
+      }
+    }
+    setLoading(true)
     try {
       const body = {
         playerId: Number(form.playerId),
@@ -39,18 +49,25 @@ export default function Profile() {
       if (form.password) body.password = form.password
       if (form.teamId) body.team = { teamId: Number(form.teamId) }
       const saved = await playerApi.update(body)
-      login(saved)
+      updateUser(saved)
       setSuccess('Profile saved')
       set('password', '')
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
     <>
-      <h1 className="page-title">My profile</h1>
-      <p className="page-sub">Edit the PLAYER row tied to this login.</p>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">My profile</h1>
+          <p className="page-sub">Edit the PLAYER row tied to this login.</p>
+        </div>
+        <span className="badge">PLAYER</span>
+      </div>
       <div className="card card-sharp">
         <Message error={error} success={success} />
         <form onSubmit={onSubmit}>
@@ -86,8 +103,17 @@ export default function Profile() {
           <label>Franchise</label>
           <TeamSelect value={form.teamId} onChange={(v) => set('teamId', v)} />
           <label>New password (optional)</label>
-          <input type="password" minLength={4} value={form.password} onChange={(e) => set('password', e.target.value)} placeholder="Leave blank to keep current" />
-          <button className="btn btn-red" type="submit">Save profile</button>
+          <input
+            type="password"
+            minLength={8}
+            autoComplete="new-password"
+            value={form.password}
+            onChange={(e) => set('password', e.target.value)}
+            placeholder="Leave blank to keep current"
+          />
+          <button className="btn btn-red" type="submit" disabled={loading}>
+            {loading ? 'Saving…' : 'Save profile'}
+          </button>
         </form>
       </div>
     </>

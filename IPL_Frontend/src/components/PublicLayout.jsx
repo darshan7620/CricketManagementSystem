@@ -2,7 +2,8 @@ import { Link, NavLink, Outlet } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext.jsx'
 
 export default function PublicLayout() {
-  const { player, logout } = useAuth()
+  const { user, isAdmin, logout } = useAuth()
+  const displayName = user?.playerName || user?.name || ''
 
   return (
     <div className="public-shell">
@@ -15,10 +16,14 @@ export default function PublicLayout() {
           </div>
         </Link>
         <nav className="public-nav-links">
-          {player ? (
+          {user ? (
             <>
-              <span className="nav-user">{player.playerName}</span>
-              <NavLink className="btn btn-red" to="/dashboard">Dashboard</NavLink>
+              <span className="nav-user">{displayName}</span>
+              {isAdmin ? (
+                <NavLink className="btn btn-red" to="/admin">Admin console</NavLink>
+              ) : (
+                <NavLink className="btn btn-red" to="/dashboard">Dashboard</NavLink>
+              )}
               <button className="btn btn-ghost" type="button" onClick={logout}>Log out</button>
             </>
           ) : (

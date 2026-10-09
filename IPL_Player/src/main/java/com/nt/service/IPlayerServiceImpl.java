@@ -5,10 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.cache.annotation.Caching;
 import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -21,6 +17,8 @@ import com.nt.exception.PlayerNotFoundException;
 import com.nt.exception.TeamNotFoundException;
 import com.nt.repository.IPlayerRepository;
 import com.nt.repository.ITeamRepository;
+import com.nt.security.JwtService;
+import com.nt.security.PasswordPolicy;
 import com.nt.vo.PlayerVo;
 import com.nt.vo.TeamVo;
 
@@ -41,8 +39,10 @@ public class IPlayerServiceImpl implements IPlayerService {
 	@Autowired
 	private Environment env;
 
+	@Autowired
+	private JwtService jwtService;
+
 	@Override
-	@Caching(put = @CachePut(value = "player", key = "#result.playerId"), evict = @CacheEvict(value = "players", allEntries = true))
 	public PlayerVo registerPlayer(PlayerVo player) {
 		log.debug("register player method executed");
 		Player plyr = toEntity(player, new Player());
@@ -54,7 +54,6 @@ public class IPlayerServiceImpl implements IPlayerService {
 	}
 
 	@Override
-	@CacheEvict(value = "players", allEntries = true)
 	public List<PlayerVo> registerPlayers(List<PlayerVo> players) {
 		ArrayList<PlayerVo> saved = new ArrayList<>();
 		players.forEach(pl -> saved.add(registerPlayer(pl)));
@@ -62,14 +61,12 @@ public class IPlayerServiceImpl implements IPlayerService {
 	}
 
 	@Override
-	@Cacheable(value = "player", key = "#id")
 	public PlayerVo findPlayerById(int id) {
 		Player pl = repo.findById(id).orElseThrow(() -> new PlayerNotFoundException("Invalid player id"));
 		return toVo(pl);
 	}
 
 	@Override
-	@Cacheable(value = "players")
 	public List<PlayerVo> getAllPlayers() {
 		List<PlayerVo> players = new ArrayList<>();
 		repo.findAll().forEach(p -> players.add(toVo(p)));
@@ -77,7 +74,6 @@ public class IPlayerServiceImpl implements IPlayerService {
 	}
 
 	@Override
-	@Caching(put = @CachePut(value = "player", key = "#result.playerId"), evict = @CacheEvict(value = "players", allEntries = true))
 	public PlayerVo updatePlayerDetails(PlayerVo player) {
 		Player p = repo.findById(player.getPlayerId())
 				.orElseThrow(() -> new PlayerNotFoundException("Invalid player id"));
@@ -89,7 +85,6 @@ public class IPlayerServiceImpl implements IPlayerService {
 	}
 
 	@Override
-	@Caching(evict = { @CacheEvict(value = "player", key = "#id"), @CacheEvict(value = "players", allEntries = true) })
 	public String deletePlayerById(int id) {
 		Optional<Player> op = repo.findById(id);
 		if (op.isEmpty()) {
@@ -100,22 +95,17 @@ public class IPlayerServiceImpl implements IPlayerService {
 	}
 
 	@Override
-	@Caching(evict = { @CacheEvict(value = "player", allEntries = true),
-			@CacheEvict(value = "players", allEntries = true) })
 	public String deleteAllPlayers() {
 		repo.deleteAll();
 		return "All Players are deleted";
 	}
 
 	@Override
-	@Caching(put = @CachePut(value = "player", key = "#result.playerId"), evict = @CacheEvict(value = "players", allEntries = true))
 	public PlayerVo signup(PlayerVo player) {
 		if (player.getEmail() == null || player.getEmail().isBlank()) {
 			throw new InvalidCredentialsException("Email is required");
 		}
-		if (player.getPassword() == null || player.getPassword().isBlank()) {
-			throw new InvalidCredentialsException("Password is required");
-		}
+		PasswordPolicy.validate(player.getPassword());
 		if (repo.existsByEmailIgnoreCase(player.getEmail().trim())) {
 			throw new DuplicatePlayerException("An account already exists for this email");
 		}
@@ -125,7 +115,9 @@ public class IPlayerServiceImpl implements IPlayerService {
 		plyr.setCreatedBy(player.getEmail());
 		plyr.setUpdatedBy(player.getEmail());
 		repo.save(plyr);
-		return toVo(plyr);
+		PlayerVo vo = toVo(plyr);
+		vo.setToken(jwtService.generateToken(plyr.getPlayerId(), plyr.getEmail(), JwtService.ROLE_PLAYER));
+		return vo;
 	}
 
 	@Override
@@ -138,11 +130,14 @@ public class IPlayerServiceImpl implements IPlayerService {
 		if (player.getPasswordHash() == null || !passwordEncoder.matches(password, player.getPasswordHash())) {
 			throw new InvalidCredentialsException("Invalid email or password");
 		}
-		return toVo(player);
+		PlayerVo vo = toVo(player);
+		vo.setToken(jwtService.generateToken(player.getPlayerId(), player.getEmail(), JwtService.ROLE_PLAYER));
+		return vo;
 	}
 
 	private void hashPasswordIfPresent(PlayerVo source, Player target) {
 		if (source.getPassword() != null && !source.getPassword().isBlank()) {
+			PasswordPolicy.validate(source.getPassword());
 			target.setPasswordHash(passwordEncoder.encode(source.getPassword()));
 		}
 		if (source.getEmail() != null && !source.getEmail().isBlank()) {
@@ -181,6 +176,7 @@ public class IPlayerServiceImpl implements IPlayerService {
 		vo.setJerseyNo(p.getJerseyNo());
 		vo.setAge(p.getAge());
 		vo.setEmail(p.getEmail());
+		vo.setRole("PLAYER");
 		if (p.getTeam() != null) {
 			TeamVo tvo = new TeamVo();
 			tvo.setTeamId(p.getTeam().getTeamId());

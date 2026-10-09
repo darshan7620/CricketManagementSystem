@@ -12,6 +12,7 @@ export default defineConfig({
     proxy: {
       '/player-api': 'http://localhost:9999',
       '/team-api': 'http://localhost:9999',
+      '/admin-api': 'http://localhost:9999',
     },
   },
 })

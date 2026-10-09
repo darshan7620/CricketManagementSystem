@@ -4,6 +4,7 @@ import { playerApi } from '../api.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import Message from '../components/Message.jsx'
 import TeamSelect from '../components/TeamSelect.jsx'
+import { validatePassword } from '../utils/passwordPolicy.js'
 
 export default function Signup() {
   const { login } = useAuth()
@@ -18,6 +19,7 @@ export default function Signup() {
     teamId: '',
   })
   const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   function set(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -26,7 +28,14 @@ export default function Signup() {
   async function onSubmit(e) {
     e.preventDefault()
     setError('')
+    const issue = validatePassword(form.password)
+    if (issue) {
+      setError(issue)
+      return
+    }
+    setLoading(true)
     try {
+      // Role is never sent by the client; the server always creates a PLAYER.
       const body = {
         playerName: form.playerName,
         email: form.email.trim(),
@@ -40,9 +49,11 @@ export default function Signup() {
       }
       const player = await playerApi.signup(body)
       login(player)
-      navigate('/dashboard')
+      navigate('/dashboard', { replace: true })
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -73,7 +84,17 @@ export default function Signup() {
               </div>
             </div>
             <label>Password</label>
-            <input type="password" required minLength={4} value={form.password} onChange={(e) => set('password', e.target.value)} />
+            <input
+              type="password"
+              required
+              minLength={8}
+              autoComplete="new-password"
+              value={form.password}
+              onChange={(e) => set('password', e.target.value)}
+            />
+            <p className="hint" style={{ marginTop: -8 }}>
+              At least 8 characters with an uppercase, lowercase, digit and special character.
+            </p>
             <div className="grid-3">
               <div>
                 <label>Role</label>
@@ -95,10 +116,15 @@ export default function Signup() {
             </div>
             <label>Franchise (optional)</label>
             <TeamSelect value={form.teamId} onChange={(v) => set('teamId', v)} />
-            <button className="btn btn-red btn-block" type="submit">Create account</button>
+            <button className="btn btn-red btn-block" type="submit" disabled={loading}>
+              {loading ? 'Creating account…' : 'Create account'}
+            </button>
           </form>
           <p className="page-sub" style={{ marginTop: 16 }}>
             Already registered? <Link to="/login">Open the login form</Link>
+          </p>
+          <p className="page-sub" style={{ marginTop: 8 }}>
+            Administrator? <Link to="/admin/login">Sign in to the admin console</Link>
           </p>
         </div>
       </div>

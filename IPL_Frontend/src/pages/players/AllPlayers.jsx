@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { playerApi } from '../../api.js'
+import { useAuth } from '../../auth/AuthContext.jsx'
 import Message from '../../components/Message.jsx'
 
 export default function AllPlayers() {
+  const { isAdmin } = useAuth()
   const [players, setPlayers] = useState([])
   const [query, setQuery] = useState('')
   const [error, setError] = useState('')
@@ -28,8 +30,13 @@ export default function AllPlayers() {
 
   return (
     <>
-      <h1 className="page-title">All players</h1>
-      <p className="page-sub">Full PLAYER table. Search by name, email, role, or franchise.</p>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">All players</h1>
+          <p className="page-sub">Full PLAYER table. Search by name, email, role, or franchise.</p>
+        </div>
+        {!loading && <span className="badge">{filtered.length} of {players.length}</span>}
+      </div>
       <div className="card">
         <Message error={error} />
         <div className="filter-bar">
@@ -37,7 +44,11 @@ export default function AllPlayers() {
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search squad" />
         </div>
         {loading && <p className="page-sub">Loading players…</p>}
-        {!loading && filtered.length === 0 && <p className="empty">No players match this view.</p>}
+        {!loading && filtered.length === 0 && (
+          <p className="empty-card">
+            {players.length === 0 ? 'No players registered yet.' : 'No players match this view.'}
+          </p>
+        )}
         <div className="table-wrap">
           <table>
             <thead>
@@ -57,8 +68,8 @@ export default function AllPlayers() {
                   <td>{p.team?.teamName || 'Unassigned'}</td>
                   <td className="table-actions">
                     <Link to={`/players/find?id=${p.playerId}`}>View</Link>
-                    <Link to={`/players/update?id=${p.playerId}`}>Edit</Link>
-                    <Link to={`/players/delete?id=${p.playerId}`}>Delete</Link>
+                    {isAdmin && <Link to={`/players/update?id=${p.playerId}`}>Edit</Link>}
+                    {isAdmin && <Link to={`/players/delete?id=${p.playerId}`}>Delete</Link>}
                   </td>
                 </tr>
               ))}

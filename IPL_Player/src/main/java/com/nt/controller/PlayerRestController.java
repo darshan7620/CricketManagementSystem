@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nt.security.AuthenticatedUser;
 import com.nt.service.IPlayerService;
 import com.nt.vo.LoginRequest;
 import com.nt.vo.PlayerVo;
@@ -57,7 +61,21 @@ public class PlayerRestController {
 
 	@PutMapping("/update")
 	public ResponseEntity<PlayerVo> savePlayerDetails(@RequestBody PlayerVo player) {
+		authorizeSelfOrAdmin(player);
 		return new ResponseEntity<PlayerVo>(service.updatePlayerDetails(player), HttpStatus.OK);
+	}
+
+	private void authorizeSelfOrAdmin(PlayerVo player) {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		boolean admin = auth != null && auth.getAuthorities().stream()
+				.anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+		if (admin) {
+			return;
+		}
+		if (auth == null || !(auth.getPrincipal() instanceof AuthenticatedUser user) || user.getUid() == null
+				|| !user.getUid().equals(player.getPlayerId())) {
+			throw new AccessDeniedException("You can only update your own profile");
+		}
 	}
 
 	@DeleteMapping("/delete/{id}")

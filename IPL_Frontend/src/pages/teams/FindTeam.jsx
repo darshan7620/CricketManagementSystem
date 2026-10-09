@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { playerApi, teamApi } from '../../api.js'
+import { useAuth } from '../../auth/AuthContext.jsx'
 import Message from '../../components/Message.jsx'
 
 export default function FindTeam() {
+  const { isAdmin } = useAuth()
   const [params] = useSearchParams()
   const [id, setId] = useState(params.get('id') || '')
   const [team, setTeam] = useState(null)
@@ -49,10 +51,12 @@ export default function FindTeam() {
                 <tr><th>Captain</th><td>{team.teamCaptain}</td></tr>
               </tbody>
             </table>
-            <div className="table-actions" style={{ marginTop: 12 }}>
-              <Link to={`/teams/update?id=${team.teamId}`}>Edit</Link>
-              <Link to={`/teams/delete?id=${team.teamId}`}>Delete</Link>
-            </div>
+            {isAdmin && (
+              <div className="table-actions" style={{ marginTop: 12 }}>
+                <Link to={`/teams/update?id=${team.teamId}`}>Edit</Link>
+                <Link to={`/teams/delete?id=${team.teamId}`}>Delete</Link>
+              </div>
+            )}
             <h2 className="section-title">Squad ({squad.length})</h2>
             {squad.length === 0 && <p className="empty">No players assigned to this franchise yet.</p>}
             <ul>

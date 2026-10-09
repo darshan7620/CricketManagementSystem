@@ -13,6 +13,8 @@ export default function UpdateTeam() {
   })
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [loadingData, setLoadingData] = useState(false)
 
   function set(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -20,6 +22,7 @@ export default function UpdateTeam() {
 
   async function load(id = form.teamId) {
     setError('')
+    setLoadingData(true)
     try {
       const t = await teamApi.find(id)
       setForm({
@@ -30,6 +33,8 @@ export default function UpdateTeam() {
       })
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoadingData(false)
     }
   }
 
@@ -41,6 +46,7 @@ export default function UpdateTeam() {
     e.preventDefault()
     setError('')
     setSuccess('')
+    setLoading(true)
     try {
       const saved = await teamApi.update({
         teamId: Number(form.teamId),
@@ -51,6 +57,8 @@ export default function UpdateTeam() {
       setSuccess(`Updated team ${saved.teamId}`)
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -64,7 +72,9 @@ export default function UpdateTeam() {
           <label>Team id</label>
           <div className="row">
             <input type="number" required value={form.teamId} onChange={(e) => set('teamId', e.target.value)} />
-            <button className="btn btn-ghost" type="button" onClick={() => load()}>Load</button>
+            <button className="btn btn-ghost" type="button" disabled={loadingData} onClick={() => load()}>
+              {loadingData ? 'Loading…' : 'Load'}
+            </button>
           </div>
           <label>Name</label>
           <input required value={form.teamName} onChange={(e) => set('teamName', e.target.value)} />
@@ -72,7 +82,11 @@ export default function UpdateTeam() {
           <input required value={form.teamOwner} onChange={(e) => set('teamOwner', e.target.value)} />
           <label>Captain</label>
           <input required value={form.teamCaptain} onChange={(e) => set('teamCaptain', e.target.value)} />
-          <button className="btn btn-red" type="submit">Update</button>
+          <div className="form-actions">
+            <button className="btn btn-red" type="submit" disabled={loading}>
+              {loading ? 'Updating…' : 'Update'}
+            </button>
+          </div>
         </form>
       </div>
     </>

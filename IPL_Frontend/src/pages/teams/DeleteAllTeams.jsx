@@ -5,16 +5,20 @@ import Message from '../../components/Message.jsx'
 export default function DeleteAllTeams() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function onSubmit(e) {
     e.preventDefault()
     setError('')
     setSuccess('')
     if (!window.confirm('Delete every franchise? Players will keep their records but lose the team link. This cannot be undone.')) return
+    setLoading(true)
     try {
       setSuccess(await teamApi.removeAll())
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -25,7 +29,9 @@ export default function DeleteAllTeams() {
       <div className="card">
         <Message error={error} success={success} />
         <form onSubmit={onSubmit}>
-          <button className="btn btn-danger" type="submit">Delete every team</button>
+          <button className="btn btn-danger" type="submit" disabled={loading}>
+            {loading ? 'Deleting…' : 'Delete every team'}
+          </button>
         </form>
       </div>
     </>

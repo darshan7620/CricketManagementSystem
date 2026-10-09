@@ -9,14 +9,19 @@ export default function DeletePlayer() {
   const [preview, setPreview] = useState(null)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [loadingPreview, setLoadingPreview] = useState(false)
 
   async function load(playerId) {
     setError('')
     setPreview(null)
+    setLoadingPreview(true)
     try {
       setPreview(await playerApi.find(playerId))
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoadingPreview(false)
     }
   }
 
@@ -30,11 +35,14 @@ export default function DeletePlayer() {
     setSuccess('')
     const label = preview?.playerName || `player ${id}`
     if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return
+    setLoading(true)
     try {
       setSuccess(await playerApi.remove(id))
       setPreview(null)
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -48,10 +56,16 @@ export default function DeletePlayer() {
           <label>Player id</label>
           <div className="row">
             <input type="number" required value={id} onChange={(e) => setId(e.target.value)} />
-            <button className="btn btn-ghost" type="button" onClick={() => load(id)}>Preview</button>
+            <button className="btn btn-ghost" type="button" disabled={loadingPreview} onClick={() => load(id)}>
+              {loadingPreview ? 'Loading…' : 'Preview'}
+            </button>
           </div>
           {preview && <p className="hint">About to delete {preview.playerName} ({preview.playerRole}).</p>}
-          <button className="btn btn-danger" type="submit">Delete</button>
+          <div className="form-actions">
+            <button className="btn btn-danger" type="submit" disabled={loading}>
+              {loading ? 'Deleting…' : 'Delete'}
+            </button>
+          </div>
         </form>
       </div>
     </>

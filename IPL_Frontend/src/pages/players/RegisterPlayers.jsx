@@ -11,15 +11,21 @@ export default function RegisterPlayers() {
   const [rows, setRows] = useState([row(), row()])
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
   function update(i, field, value) {
     setRows((prev) => prev.map((item, idx) => idx === i ? { ...item, [field]: value } : item))
+  }
+
+  function removeRow(i) {
+    setRows((prev) => (prev.length <= 1 ? prev : prev.filter((_, idx) => idx !== i)))
   }
 
   async function onSubmit(e) {
     e.preventDefault()
     setError('')
     setSuccess('')
+    setLoading(true)
     try {
       const body = rows.map((r) => {
         const item = {
@@ -36,6 +42,8 @@ export default function RegisterPlayers() {
       setRows([row(), row()])
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -47,7 +55,16 @@ export default function RegisterPlayers() {
         <Message error={error} success={success} />
         <form onSubmit={onSubmit}>
           {rows.map((r, i) => (
-            <div key={i} className="grid-3">
+            <div key={i}>
+              <div className="row-head">
+                <span className="row-num">Row {i + 1}</span>
+                {rows.length > 1 && (
+                  <button className="btn btn-ghost btn-sm" type="button" onClick={() => removeRow(i)}>
+                    Remove
+                  </button>
+                )}
+              </div>
+              <div className="grid-3">
               <div>
                 <label>Name</label>
                 <input required value={r.playerName} onChange={(e) => update(i, 'playerName', e.target.value)} />
@@ -69,11 +86,14 @@ export default function RegisterPlayers() {
                   <TeamSelect value={r.teamId} onChange={(v) => update(i, 'teamId', v)} />
                 </div>
               </div>
+              </div>
             </div>
           ))}
-          <div className="row">
-            <button className="btn btn-ghost" type="button" onClick={() => setRows((prev) => [...prev, row()])}>Add row</button>
-            <button className="btn btn-red" type="submit">Save all</button>
+          <div className="form-actions">
+            <button className="btn btn-ghost" type="button" disabled={loading} onClick={() => setRows((prev) => [...prev, row()])}>Add row</button>
+            <button className="btn btn-red" type="submit" disabled={loading}>
+              {loading ? 'Saving…' : 'Save all'}
+            </button>
           </div>
         </form>
       </div>

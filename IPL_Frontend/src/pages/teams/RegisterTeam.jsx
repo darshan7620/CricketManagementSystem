@@ -3,20 +3,25 @@ import { teamApi } from '../../api.js'
 import Message from '../../components/Message.jsx'
 
 export default function RegisterTeam() {
-  const [form, setForm] = useState({ teamName: '', teamOwner: '', teamCaptain: '' })
+  const empty = { teamName: '', teamOwner: '', teamCaptain: '' }
+  const [form, setForm] = useState(empty)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
   async function onSubmit(e) {
     e.preventDefault()
     setError('')
     setSuccess('')
+    setLoading(true)
     try {
       const saved = await teamApi.register(form)
       setSuccess(`Team saved with id ${saved.teamId}`)
-      setForm({ teamName: '', teamOwner: '', teamCaptain: '' })
+      setForm(empty)
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -33,7 +38,14 @@ export default function RegisterTeam() {
           <input required value={form.teamOwner} onChange={(e) => setForm({ ...form, teamOwner: e.target.value })} />
           <label>Captain</label>
           <input required value={form.teamCaptain} onChange={(e) => setForm({ ...form, teamCaptain: e.target.value })} />
-          <button className="btn btn-red" type="submit">Save team</button>
+          <div className="form-actions">
+            <button className="btn btn-red" type="submit" disabled={loading}>
+              {loading ? 'Saving…' : 'Save team'}
+            </button>
+            <button className="btn btn-ghost" type="button" disabled={loading} onClick={() => setForm(empty)}>
+              Reset
+            </button>
+          </div>
         </form>
       </div>
     </>

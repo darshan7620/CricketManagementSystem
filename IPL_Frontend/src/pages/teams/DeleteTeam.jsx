@@ -9,14 +9,19 @@ export default function DeleteTeam() {
   const [preview, setPreview] = useState(null)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [loadingPreview, setLoadingPreview] = useState(false)
 
   async function load(teamId) {
     setError('')
     setPreview(null)
+    setLoadingPreview(true)
     try {
       setPreview(await teamApi.find(teamId))
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoadingPreview(false)
     }
   }
 
@@ -30,11 +35,14 @@ export default function DeleteTeam() {
     setSuccess('')
     const label = preview?.teamName || `team ${id}`
     if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return
+    setLoading(true)
     try {
       setSuccess(await teamApi.remove(id))
       setPreview(null)
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -48,10 +56,16 @@ export default function DeleteTeam() {
           <label>Team id</label>
           <div className="row">
             <input type="number" required value={id} onChange={(e) => setId(e.target.value)} />
-            <button className="btn btn-ghost" type="button" onClick={() => load(id)}>Preview</button>
+            <button className="btn btn-ghost" type="button" disabled={loadingPreview} onClick={() => load(id)}>
+              {loadingPreview ? 'Loading…' : 'Preview'}
+            </button>
           </div>
           {preview && <p className="hint">About to delete {preview.teamName} (captain {preview.teamCaptain}).</p>}
-          <button className="btn btn-danger" type="submit">Delete</button>
+          <div className="form-actions">
+            <button className="btn btn-danger" type="submit" disabled={loading}>
+              {loading ? 'Deleting…' : 'Delete'}
+            </button>
+          </div>
         </form>
       </div>
     </>

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { playerApi } from '../../api.js'
+import { useAuth } from '../../auth/AuthContext.jsx'
 import Message from '../../components/Message.jsx'
 
 export default function FindPlayer() {
+  const { isAdmin } = useAuth()
   const [params] = useSearchParams()
   const [id, setId] = useState(params.get('id') || '')
   const [player, setPlayer] = useState(null)
@@ -47,10 +49,12 @@ export default function FindPlayer() {
                 <tr><th>Team</th><td>{player.team?.teamName || 'Unassigned'}</td></tr>
               </tbody>
             </table>
-            <div className="table-actions" style={{ marginTop: 12 }}>
-              <Link to={`/players/update?id=${player.playerId}`}>Edit</Link>
-              <Link to={`/players/delete?id=${player.playerId}`}>Delete</Link>
-            </div>
+            {isAdmin && (
+              <div className="table-actions" style={{ marginTop: 12 }}>
+                <Link to={`/players/update?id=${player.playerId}`}>Edit</Link>
+                <Link to={`/players/delete?id=${player.playerId}`}>Delete</Link>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { teamApi } from '../../api.js'
+import { useAuth } from '../../auth/AuthContext.jsx'
 import Message from '../../components/Message.jsx'
 
 export default function AllTeams() {
+  const { isAdmin } = useAuth()
   const [teams, setTeams] = useState([])
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -17,12 +19,17 @@ export default function AllTeams() {
 
   return (
     <>
-      <h1 className="page-title">All teams</h1>
-      <p className="page-sub">Every franchise in the TEAM table.</p>
+      <div className="page-head">
+        <div>
+          <h1 className="page-title">All teams</h1>
+          <p className="page-sub">Every franchise in the TEAM table.</p>
+        </div>
+        {!loading && <span className="badge">{teams.length}</span>}
+      </div>
       <div className="card">
         <Message error={error} />
         {loading && <p className="page-sub">Loading franchises…</p>}
-        {!loading && teams.length === 0 && <p className="empty">No teams registered yet.</p>}
+        {!loading && teams.length === 0 && <p className="empty-card">No teams registered yet.</p>}
         <div className="table-wrap">
           <table>
             <thead>
@@ -37,8 +44,8 @@ export default function AllTeams() {
                   <td>{t.teamCaptain}</td>
                   <td className="table-actions">
                     <Link to={`/teams/find?id=${t.teamId}`}>View</Link>
-                    <Link to={`/teams/update?id=${t.teamId}`}>Edit</Link>
-                    <Link to={`/teams/delete?id=${t.teamId}`}>Delete</Link>
+                    {isAdmin && <Link to={`/teams/update?id=${t.teamId}`}>Edit</Link>}
+                    {isAdmin && <Link to={`/teams/delete?id=${t.teamId}`}>Delete</Link>}
                   </td>
                 </tr>
               ))}

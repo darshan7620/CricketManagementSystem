@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { playerApi } from '../api.js'
+import { adminApi } from '../api.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 import Message from '../components/Message.jsx'
 
-export default function Login() {
+export default function AdminLogin() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', password: '' })
@@ -16,12 +16,12 @@ export default function Login() {
     setError('')
     setLoading(true)
     try {
-      const player = await playerApi.login({
+      const admin = await adminApi.login({
         email: form.email.trim(),
         password: form.password,
       })
-      login(player)
-      navigate('/dashboard', { replace: true })
+      login(admin)
+      navigate('/admin', { replace: true })
     } catch (err) {
       setError(err.message)
     } finally {
@@ -32,16 +32,16 @@ export default function Login() {
   return (
     <section className="auth-split">
       <aside className="auth-photo">
-        <img src="/images/login-pitch.jpg" alt="Cricket bat and ball on the pitch" />
+        <img src="/images/dashboard-night.jpg" alt="Floodlit cricket stadium at night" />
         <div className="auth-photo-copy">
-          <p className="eyebrow">Player gate</p>
-          <h2>Back on the park.</h2>
-          <p>Sign in with the email saved on your PLAYER record.</p>
+          <p className="eyebrow">Control room</p>
+          <h2>Administrator access.</h2>
+          <p>Restricted console for franchise and squad operations.</p>
         </div>
       </aside>
       <div className="auth-panel fade-up">
-        <h1 className="page-title">Log in</h1>
-        <p className="page-sub">Separate from sign up — email and password only.</p>
+        <h1 className="page-title">Admin log in</h1>
+        <p className="page-sub">Administrator accounts only. There is no public admin sign up.</p>
         <div className="card card-sharp">
           <Message error={error} />
           <form onSubmit={onSubmit}>
@@ -62,14 +62,11 @@ export default function Login() {
               onChange={(e) => setForm({ ...form, password: e.target.value })}
             />
             <button className="btn btn-red btn-block" type="submit" disabled={loading}>
-              {loading ? 'Signing in…' : 'Log in'}
+              {loading ? 'Signing in…' : 'Sign in as admin'}
             </button>
           </form>
           <p className="page-sub" style={{ marginTop: 16 }}>
-            New player? <Link to="/signup">Open the sign up form</Link>
-          </p>
-          <p className="page-sub" style={{ marginTop: 8 }}>
-            Administrator? <Link to="/admin/login">Sign in to the admin console</Link>
+            Player instead? <Link to="/login">Open the player login</Link>
           </p>
         </div>
       </div>

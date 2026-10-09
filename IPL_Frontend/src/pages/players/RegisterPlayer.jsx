@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { playerApi } from '../../api.js'
 import Message from '../../components/Message.jsx'
 import TeamSelect from '../../components/TeamSelect.jsx'
+import { validatePassword } from '../../utils/passwordPolicy.js'
 
 const empty = {
   playerName: '',
@@ -17,6 +18,7 @@ export default function RegisterPlayer() {
   const [form, setForm] = useState(empty)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
   function set(field, value) {
     setForm((prev) => ({ ...prev, [field]: value }))
@@ -26,6 +28,14 @@ export default function RegisterPlayer() {
     e.preventDefault()
     setError('')
     setSuccess('')
+    if (form.password) {
+      const issue = validatePassword(form.password)
+      if (issue) {
+        setError(issue)
+        return
+      }
+    }
+    setLoading(true)
     try {
       const body = {
         playerName: form.playerName,
@@ -41,6 +51,8 @@ export default function RegisterPlayer() {
       setForm(empty)
     } catch (err) {
       setError(err.message)
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -87,10 +99,23 @@ export default function RegisterPlayer() {
             </div>
             <div>
               <label>Login password (optional)</label>
-              <input type="password" value={form.password} onChange={(e) => set('password', e.target.value)} />
+              <input
+                type="password"
+                minLength={8}
+                autoComplete="new-password"
+                value={form.password}
+                onChange={(e) => set('password', e.target.value)}
+              />
             </div>
           </div>
-          <button className="btn btn-red" type="submit">Save player</button>
+          <div className="form-actions">
+            <button className="btn btn-red" type="submit" disabled={loading}>
+              {loading ? 'Saving…' : 'Save player'}
+            </button>
+            <button className="btn btn-ghost" type="button" disabled={loading} onClick={() => setForm(empty)}>
+              Reset
+            </button>
+          </div>
         </form>
       </div>
     </>

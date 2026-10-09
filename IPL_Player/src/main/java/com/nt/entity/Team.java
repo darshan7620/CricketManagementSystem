@@ -6,7 +6,6 @@ import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -19,9 +18,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 @Entity
 @Table(name = "TEAM")
 @Data
@@ -54,9 +55,10 @@ public class Team implements Serializable{
 
     
     @OneToMany(targetEntity = Player.class, 
-    		fetch = FetchType.EAGER, 
-    		cascade = CascadeType.ALL,
+    		fetch = FetchType.LAZY, 
     		mappedBy = "team")
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     private List<Player> players;
     
     @Version
